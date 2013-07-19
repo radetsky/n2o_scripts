@@ -1,3 +1,4 @@
 {application, n2o_scripts, [
+    {vsn,          "3.0"},
     {description,  "N2O AUX"}
 ]}.
