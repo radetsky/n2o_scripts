@@ -1,0 +1,3 @@
+{application, n2o_scripts, [
+    {description,  "N2O AUX"}
+]}.
