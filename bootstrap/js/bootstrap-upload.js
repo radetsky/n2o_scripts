@@ -26,33 +26,45 @@
     var file_index = 0;
     var start_file_index;
 
-    var info = $('<span/>').attr({class: 'info', name: 'info'});
-    var browse_btn = $('<input type="button"/>').attr({class: 'btn btn-browse', value: 'Browse'}).on('click', function(e){$input.trigger('click');});
-    var upload_btn = $('<input type="button"/>').attr({class: 'btn btn-upload', value: 'Upload'}).on('click', function(e){begin_upload();});
-    var resume_btn = $('<input type="button"/>').attr({class: 'btn btn-resume', value: 'Resume'}).on('click', function(e){begin_upload();});
-    var reupload_btn = $('<input type="button"/>').attr({class: 'btn btn-reupload', value: 'Reupload'}).on('click', function(e){file_index = 0;begin_upload();});
-    var progress_bar = $('<div/>').attr({class:'bar'});
-    var progress_label = $('<div/>').attr({class: 'progress-label'});
-    var progress = $('<div/>').attr({class: 'progress progress-info'}).append(progress_bar, progress_label);
-    var cancel_btn = $('<input type="button"/>').attr({class: 'btn btn-cancel', value: 'Cancel'})
+    var browse_btn = $('<a>', {href:'#', title:'Browse', class:''}).on('click', function(e){$input.trigger('click');e.preventDefault();}).append($('<i>', {class: 'icon-upload icon-2x'}));
+    var upload_btn = $('<a>', {href:'#', title: 'Upload', class: ''}).on('click', function(e){begin_upload(); e.preventDefault();}).hide().append($('<i>', {class: 'icon-play-circle icon-2x'}));
+    var reupload_btn = $('a>', {href:'#',class: '', title: 'Reupload'}).on('click', function(e){file_index = 0;begin_upload();e.preventDefault();}).append($('<i>', {class:'icon-refresh'}));
+    var resume_btn = $('<a>', {href: '#',class: '', title: 'Resume'}).on('click', function(e){begin_upload();e.preventDefault();}).append($('<i>', {class:'icon-play-circle icon-2x'}));
+    var cancel_btn = $('<a>', {href: '#', class: 'text-error', title: 'Cancel'})
       .on('click', function(e) {
         reset_upload();
         progress_label.html('');
         cancelled_upload=true;
-    });
-    var pause_btn = $('<input type="button"/>').attr({class: 'btn btn-pause', value: 'Pause'})
+        e.preventDefault();
+    }).append($('<i>', {class: 'icon-remove icon-2x'}));
+    var pause_btn = $('<a>', {href:'#', class: '', title: 'Pause'})
       .on('click', function (e) {
         paused_upload=true;
-        cancel_btn.hide();
         pause_btn.hide();
         resume_btn.show();
         progress_label.html('');
-      });
+        e.preventDefault();
+      }).append($('<i>', {class: 'icon-pause icon-large'}));
 
-    $input.wrap("<div class='file_upload'></div>").hide().parent().append(
-      progress, info, browse_btn, upload_btn, pause_btn, reupload_btn, resume_btn, cancel_btn
-    );
-    var file_buttons = $(':button', $input.parent());
+    var etainfo = $('<span/>', {class: 'info'});
+    var info = $('<span/>', {class: 'info', name: 'info'});
+    var progress_bar = $('<div/>', {class:'bar', style: 'width:0;'}).on('progress-changed', function(e, progress){
+      progress_bar.css('width', progress + "%");
+      if(progress === 48){
+        $('i', pause_btn).addClass('icon-light');
+        $('i', resume_btn).addClass('icon-light');
+      }
+      progress_bar.css('width', progress + "%");
+
+    });
+    var progress_label = $('<div/>', {class: 'progress-label'});
+    var progress_ctl = $('<div/>', {class: 'progress-ctl'}).append(upload_btn, pause_btn, resume_btn, reupload_btn);
+    var progress = $('<div/>', {class: 'progress progress-info'}).append(progress_bar, progress_label, progress_ctl);
+    var ctl  = $('<div/>', {class: 'ctl'}).append(cancel_btn, info, etainfo, browse_btn);
+
+    $input.wrap("<div class='file_upload' contenteditable='false'></div>").hide().parent().append(progress, ctl);
+
+    var file_buttons = $('a', $input.parent());
 
     $input.on('change', function(e) {
       file = this.files[0];
@@ -62,7 +74,8 @@
       file_buttons.hide();
       browse_btn.show();
       upload_btn.show();
-      progress_bar.attr("style", "width: 0");
+      cancel_btn.show();
+      progress_bar.css('width', "0");
       options.queryFile(Bert.tuple(Bert.atom('query'),Bert.binary(file.name)));
     }).on('exist', function(e, fileSize){
       file_index = 0;
@@ -104,7 +117,9 @@
       paused_upload = false;
       info.html('');
       progress_label.html('');
-      progress_bar.attr("style", "width: 0");
+      progress_bar.css('width', "0");
+      $('i', pause_btn).removeClass('icon-light');
+      $('i', resume_btn).removeClass('icon-light');
     }
     function error(message){ 
       reset_upload();
@@ -132,6 +147,7 @@
           file_buttons.hide();
           browse_btn.show();
           progress_label.html('Upload complete');
+          etainfo.html('');
           options.complete(Bert.tuple(Bert.atom('complete'), Bert.binary(self.pid)));
         }
       }
@@ -140,22 +156,26 @@
     function calculate_eta()  {
       var delta_ms = Date.now() - start_time;
       var rate = (file_index- start_file_index) / delta_ms;
+
       var remaining_ms = (file.size - file_index) / rate;
+      if(remaining_ms < 0) return;
+
       var delta_hr = parseInt(Math.floor(remaining_ms/3600000));
       remaining_ms -= delta_hr*3600000;
       var delta_min = parseInt(Math.floor(remaining_ms/60000));
       remaining_ms -= delta_min*60000;
       var delta_sec = parseInt(Math.floor(remaining_ms/1000));
-      if (delta_sec>10) delta_sec = parseInt(Math.floor(delta_sec/10)*10);
       var eta = "";
-      if (delta_sec>0) eta = delta_sec + " secs";
+      if (delta_sec>=0) eta = delta_sec + 1 + " secs";
       if (delta_min>0) eta = delta_min + " mins";
       if (delta_hr>0) eta = delta_hr + " hours";
-      if (delta_ms>5000) progress_label.html(eta);
+      etainfo.html(eta);
     }
     function update_progress_bar()  {
       var progress = Math.floor(100* (file_index / file.size));
-      progress_bar.attr("style", "width: "+ progress + "%");
+      if(progress_bar[0].style.width !== progress+'%'){
+        progress_bar.trigger('progress-changed', [progress]);
+      }
     }
 
     function read_slice(start, end)   {
