@@ -2,12 +2,16 @@
   position: relative;
   border: 1px solid #eee;
   display: block;
-  width:100%;
+
+  padding:5px;
 
   & .progress {
     resize: none;
+    height:40px;
+    line-height:40px;
+
     & .bar {
-      .transition(width .09s ease);
+      .transition(width .06s ease);
     }
     & .progress-label {
       position:absolute;
@@ -22,16 +26,14 @@
       text-align:center;
       width:100%;
       left:0;
-      //top: 11px;
     }
   }
 
   & .ctl{
-    padding: 5px;
     text-align: center;
     padding-bottom: 0;
     & .info{
-      margin: 0 10px;
+      margin: 0;
       vertical-align:middle;
       text-align:center;
       height:41px;

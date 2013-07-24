@@ -26,10 +26,11 @@
     var file_index = 0;
     var start_file_index;
 
-    var browse_btn = $('<a>', {href:'#', title:'Browse', class:''}).on('click', function(e){$input.trigger('click');e.preventDefault();}).append($('<i>', {class: 'icon-upload icon-2x'}));
-    var upload_btn = $('<a>', {href:'#', title: 'Upload', class: ''}).on('click', function(e){begin_upload(); e.preventDefault();}).hide().append($('<i>', {class: 'icon-play-circle icon-2x'}));
-    var reupload_btn = $('a>', {href:'#',class: '', title: 'Reupload'}).on('click', function(e){file_index = 0;begin_upload();e.preventDefault();}).append($('<i>', {class:'icon-refresh'}));
-    var resume_btn = $('<a>', {href: '#',class: '', title: 'Resume'}).on('click', function(e){begin_upload();e.preventDefault();}).append($('<i>', {class:'icon-play-circle icon-2x'}));
+    var browse_btn = $('<a>', {href: '#',title: 'Browse', }).on('click', function(e){$input.trigger('click');e.preventDefault();}).append($('<i>', {class: 'icon-upload icon-2x'}));
+    var upload_btn = $('<a>', {href: '#',title: 'Upload'  }).on('click', function(e){begin_upload(); e.preventDefault();}).hide().append($('<i>', {class: 'icon-play-circle icon-2x'}));
+    var reupload_btn=$('<a>', {href: '#',title: 'Reupload'}).on('click', function(e){file_index = 0;begin_upload();e.preventDefault();}).append($('<i>', {class:'icon-refresh icon-light icon-2x'}));
+    console.log(reupload_btn);
+    var resume_btn = $('<a>', {href: '#',title: 'Resume'  }).on('click', function(e){begin_upload();e.preventDefault();}).append($('<i>', {class:'icon-play-circle icon-2x'}));
     var cancel_btn = $('<a>', {href: '#', class: 'text-error', title: 'Cancel'})
       .on('click', function(e) {
         reset_upload();
@@ -69,7 +70,7 @@
     $input.on('change', function(e) {
       file = this.files[0];
       if(!file) return;
-      info.html(file.name);
+      info.html('&nbsp;&nbsp;' + file.name+'&nbsp;&nbsp;');
       progress_label.html('');
       file_buttons.hide();
       browse_btn.show();
