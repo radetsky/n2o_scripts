@@ -1,7 +1,9 @@
 (function($) {
   $.fn.upload = function(settings){
     var options = $.extend(true, {
-      block_size: 10485760,
+      block_size: 5*1024*1024, //10485760,
+      progressClass: "progress-striped",
+      preview: false,
       beginUpload: function(){},
       deliverSlice: function(){},
       queryFile: function(){},
@@ -29,13 +31,13 @@
     var browse_btn = $('<a>', {href: '#',title: 'Browse', }).on('click', function(e){$input.trigger('click');e.preventDefault();}).append($('<i>', {class: 'icon-upload icon-2x'}));
     var upload_btn = $('<a>', {href: '#',title: 'Upload'  }).on('click', function(e){begin_upload(); e.preventDefault();}).hide().append($('<i>', {class: 'icon-play-circle icon-2x'}));
     var reupload_btn=$('<a>', {href: '#',title: 'Reupload'}).on('click', function(e){file_index = 0;begin_upload();e.preventDefault();}).append($('<i>', {class:'icon-refresh icon-light icon-2x'}));
-    console.log(reupload_btn);
     var resume_btn = $('<a>', {href: '#',title: 'Resume'  }).on('click', function(e){begin_upload();e.preventDefault();}).append($('<i>', {class:'icon-play-circle icon-2x'}));
     var cancel_btn = $('<a>', {href: '#', class: 'text-error', title: 'Cancel'})
       .on('click', function(e) {
         reset_upload();
         progress_label.html('');
         cancelled_upload=true;
+        preview.html('');
         e.preventDefault();
     }).append($('<i>', {class: 'icon-remove icon-2x'}));
     var pause_btn = $('<a>', {href:'#', class: '', title: 'Pause'})
@@ -60,16 +62,17 @@
     });
     var progress_label = $('<div/>', {class: 'progress-label'});
     var progress_ctl = $('<div/>', {class: 'progress-ctl'}).append(upload_btn, pause_btn, resume_btn, reupload_btn);
-    var progress = $('<div/>', {class: 'progress progress-info'}).append(progress_bar, progress_label, progress_ctl);
+    var progress = $('<div/>', {class: 'progress progress-info ' + options.progressClass}).append(progress_bar, progress_label, progress_ctl);
     var ctl  = $('<div/>', {class: 'ctl'}).append(cancel_btn, info, etainfo, browse_btn);
-
-    $input.wrap("<div class='file_upload' contenteditable='false'></div>").hide().parent().append(progress, ctl);
+    var preview = $('<div/>', {class: 'preview'});
+    $input.wrap("<div class='file_upload' contenteditable='false'></div>").hide().parent().append(preview, progress, ctl);
 
     var file_buttons = $('a', $input.parent());
 
     $input.on('change', function(e) {
       file = this.files[0];
       if(!file) return;
+      console.log('type: ' + file.type);
       info.html('&nbsp;&nbsp;' + file.name+'&nbsp;&nbsp;');
       progress_label.html('');
       file_buttons.hide();
@@ -77,7 +80,19 @@
       upload_btn.show();
       cancel_btn.show();
       progress_bar.css('width', "0");
-      options.queryFile(Bert.tuple(Bert.atom('query'),Bert.binary(file.name)));
+      if(options.preview=='true' && file.type.match('image*')){
+        reader = new FileReader();
+        reader.onload = (function(f){
+          return function(e){
+            preview.html($('<img/>', {src: e.target.result, title: f.name, width: preview.width()}));
+          };
+        })(file);
+        reader.readAsDataURL(file);
+      }else {
+        preview.html('');
+      }
+      var type = (file.type === "") ? Bert.atom('undefined') : Bert.binary(file.type);
+      options.queryFile(Bert.tuple(Bert.atom('query'),Bert.binary(file.name), type));
     }).on('exist', function(e, fileSize){
       file_index = 0;
       var size = parseInt(fileSize);
@@ -122,8 +137,16 @@
       $('i', pause_btn).removeClass('icon-light');
       $('i', resume_btn).removeClass('icon-light');
     }
+
     function error(message){ 
+      console.log('error ' + message);
       reset_upload();
+      $('<div/>', {class: 'alert alert-error'})
+        .append($('<button>', {type: 'button', class: 'close', 'data-dismiss': 'alert'}).html("&times;"))
+        .append(message)
+        .prependTo($input.parent());
+      $('.progress-info', $input.parent()).removeClass('progress-info').addClass('progress-danger');
+      progress_bar.css('width', "100%");
       progress_label.html(message);
     }
     function onabort(event){ error('File upload aborted'); reader.abort();}
@@ -196,7 +219,8 @@
       start_time = Date.now();
       start_file_index = file_index;
       if (paused_upload) paused_upload = false;
-      options.beginUpload(Bert.tuple(Bert.atom('begin_upload'), Bert.binary(file.name)));
+      var type = (file.type === "") ? Bert.atom('undefined') : Bert.binary(file.type);
+      options.beginUpload(Bert.tuple(Bert.atom('begin_upload'), Bert.binary(file.name), type));
     }
 
     reset_upload();

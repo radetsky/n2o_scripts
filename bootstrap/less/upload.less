@@ -7,8 +7,9 @@
 
   & .progress {
     resize: none;
-    height:40px;
-    line-height:40px;
+    height: 2em;
+    line-height:2em;
+    margin-bottom: 5px;
 
     & .bar {
       .transition(width .06s ease);
@@ -36,9 +37,14 @@
       margin: 0;
       vertical-align:middle;
       text-align:center;
-      height:41px;
+      height:2em;
       display:inline-block;
+      margin-top:-3px;
+      word-break:break-all;
     }
   }
 
+  & .preview {
+    margin-bottom: 5px;
+  }
 }
