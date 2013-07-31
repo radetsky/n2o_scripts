@@ -4,6 +4,8 @@
       var vals = [];
       $('[name='+ this.attr('id')+']').each(function(i){ vals[i] = $(this).val() });
       return vals.join();
+    } else if(this.attr('data-html')) {
+      return this.html();
     } else
       return $.fn.val.apply(this, arguments);
     }
