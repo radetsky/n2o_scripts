@@ -216,7 +216,7 @@ function bullet(url) {
 		this.onmessage = function(){};
 		this.ondisconnect = function(){};
 		this.onclose = function(){};
-		this.onheartbeat = function(){};
+		this.onheartbeat = function(){ return this.send('PING'); };
 
 		this.setURL = function(newURL){
 			url = newURL;
