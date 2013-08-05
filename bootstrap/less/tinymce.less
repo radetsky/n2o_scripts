@@ -27,5 +27,28 @@
     outline: thin dotted \9; /* IE6-9 */
     .box-shadow(~"inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(82,168,236,.6)");
   }
+
 }
 
+.static {position: static !important;}
+
+.htmlbox-container{
+  position: static;
+
+  & .htmlbox-toolbar{
+    display:block;
+    width: 50px;
+    float:left;
+    margin-left: -60px;
+    padding:0;
+
+    @media(max-width: 860px){
+      // should be fixed!
+      float:none;
+      margin-left: 0;
+      margin-bottom: 10px;
+    }
+
+    & .nav-list { padding-left:0; }
+  }
+}
