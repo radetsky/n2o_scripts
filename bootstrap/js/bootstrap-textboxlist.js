@@ -386,7 +386,7 @@ $.Autocompleter.defaults = {
   mustMatch: false,
   extraParams: {},
   selectFirst: true,
-  formatItem: function(row){return row[0];},
+  formatItem: function(row){return row[1];},
   formatMatch: null,
   autoFill: false,
   width: 0,
@@ -625,7 +625,6 @@ $.Autocompleter.Select = function (options, input, select, config) {
       if (!data[i]) continue;
       var formatted = options.formatItem(data[i].data, i+1, max, data[i].value, term);
       if ( formatted === false ) continue;
-
       $("<li/>")
         .attr("data-tbl-autocomplete", JSON.stringify(data[i]))
         .append($("<a href='#'/>").html(options.highlight(formatted, term)))
@@ -821,7 +820,7 @@ $.TextboxLister = function(elem, opts) {
   }
 
   $(document).keydown(function(e){
-    if(!focused)return;
+    if(!focused) return;
     if ( $( '.' + self.opts.containerClass + ' *:focus').length==0 && $('.'+self.opts.listValueSelectedClass).length==0) return;
     if($(self.input).is(':focus') && self.input.val().length > 0) return;
 
@@ -839,8 +838,11 @@ $.TextboxLister = function(elem, opts) {
             }
             self.deselect(el.find('input').val());
           } else {
-            self.focusTag(self.input.prev('span.'+self.opts.listValueClass), 'self');
-            self.input.blur();
+            var tag = self.input.prev('span.'+self.opts.listValueClass);
+            if($(tag).length>0){
+              self.focusTag(tag, 'self');
+              self.input.blur();
+            }
           }
         }
         return;
@@ -849,8 +851,11 @@ $.TextboxLister = function(elem, opts) {
         if (self.cursor) {
           self.focusTag(self.cursor, 'prev');
         } else {
-          self.focusTag(self.input.prev('span.'+self.opts.listValueClass), 'self');
-          self.input.blur();
+          var tag = self.input.prev('span.'+self.opts.listValueClass);
+          if($(tag).length > 0){
+            self.focusTag(tag, 'self');
+            self.input.blur();
+          }
         }
         break;
       case self.opts.keys.next:
@@ -928,29 +933,30 @@ $.TextboxLister = function(elem, opts) {
 };
 
 $.TextboxLister.prototype.focusTag = function(span, direction){
-  var self = this;
-
-  if (direction == 'self'){
-    $('.'+self.opts.listValueSelectedClass).removeClass(self.opts.listValueSelectedClass);
-    self.cursor = span;
-    $(span).addClass(self.opts.listValueSelectedClass);
-  } else if(direction == 'prev'){
-    var prev = $(span).prev('span.'+self.opts.listValueClass);
-    if(prev.is('span')){
-      $(self.cursor).removeClass(self.opts.listValueSelectedClass);
-      prev.addClass(self.opts.listValueSelectedClass);
-      self.cursor = prev;
-    }
-  } else if(direction == 'next'){
-    var next = $(span).next('span.'+self.opts.listValueClass);
-    if(next.is('span')){
-      $(self.cursor).removeClass(self.opts.listValueSelectedClass);
-      next.addClass(self.opts.listValueSelectedClass);
-      self.cursor = next;
-    } else {
-      $(self.cursor).removeClass(self.opts.listValueSelectedClass);
-      self.cursor = null;
-      self.input.focus();
+  if($(span).length>0){
+    var self = this;
+    if (direction == 'self'){
+      var tag = $('.'+self.opts.listValueSelectedClass);
+      self.cursor = span;
+      $(span).addClass(self.opts.listValueSelectedClass);
+    } else if(direction == 'prev'){
+      var prev = $(span).prev('span.'+self.opts.listValueClass);
+      if(prev.is('span')){
+        $(self.cursor).removeClass(self.opts.listValueSelectedClass);
+        prev.addClass(self.opts.listValueSelectedClass);
+        self.cursor = prev;
+      }
+    } else if(direction == 'next'){
+      var next = $(span).next('span.'+self.opts.listValueClass);
+      if(next.is('span')){
+        $(self.cursor).removeClass(self.opts.listValueSelectedClass);
+        next.addClass(self.opts.listValueSelectedClass);
+        self.cursor = next;
+      } else {
+        $(self.cursor).removeClass(self.opts.listValueSelectedClass);
+        self.cursor = null;
+        self.input.focus();
+      }
     }
   }
 }
@@ -983,7 +989,6 @@ $.TextboxLister.prototype.reset = function() {
 // add values to the selection
 $.TextboxLister.prototype.select = function(values, suppressCallback) {
     var self = this, i, j, val, title, close, found, currentVal, input;
-
     if (typeof(values) === 'object') {
       values = values.join(',');
     } 
@@ -1039,7 +1044,6 @@ $.TextboxLister.prototype.select = function(values, suppressCallback) {
     if (self.opts.doSort) {
       self.currentValues = self.currentValues.sort();
     }
-
     var cursorVal = $(self.cursor).find('input').val();
     self.cursor = null;
     self.container.parent().find("."+self.opts.listValueClass).remove();
@@ -1047,7 +1051,6 @@ $.TextboxLister.prototype.select = function(values, suppressCallback) {
     for (i = self.currentValues.length-1; i >= 0; i--) {
       val = self.currentValues[i];
       if (!val) continue;
-
       input = "<input type='hidden' name='"+self.input.attr('id')+"' value='"+val+"'/>";
 
       close = $("<a class='"+ self.opts.closeClass+"' href='#'>&times;</a>");
