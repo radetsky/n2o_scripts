@@ -884,7 +884,7 @@ $.TextboxLister = function(elem, opts) {
     var input = $(self.input);
     var tagsCont  = input.parent();
     var tags = input.prevAll('span.tbl-tag');
-    var il = tagsCont.width() - 2;//border
+    var il = tagsCont.width() - 10;//border
     var span = input.prevAll('span');
 
     var i, offset=0, width, empty=0, tag;

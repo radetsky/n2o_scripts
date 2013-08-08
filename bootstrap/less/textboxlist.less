@@ -1,9 +1,14 @@
-.tbl{ margin-bottom:10px;}
+.tbl{ 
+  margin-bottom:10px;
+  overflow:hidden;
+  padding:2px;
+  margin-left:-2px;
+}
 
 .tbl-tags{
   display: inline-block;
-  padding: 4px 4px;
-  width:93%;
+  padding: 0;
+  width:100%;
   font-size: @baseFontSize;
   color: @gray;
   .border-radius(@inputBorderRadius);
@@ -19,8 +24,8 @@
   }
 
   input[type="text"] {
-    margin:2px 4px;
-    padding: 6px 0;
+    margin:2px 0;
+    padding: 6px 4px;
     border:none;
     outline:none;
     .box-shadow(none);
