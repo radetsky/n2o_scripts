@@ -72,7 +72,6 @@
     $input.on('change', function(e) {
       file = this.files[0];
       if(!file) return;
-      console.log('type: ' + file.type);
       info.html('&nbsp;&nbsp;' + file.name+'&nbsp;&nbsp;');
       progress_label.html('');
       file_buttons.hide();
