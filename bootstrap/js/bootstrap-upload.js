@@ -4,6 +4,7 @@
       block_size: 5*1024*1024, //10485760,
       progressClass: "progress-striped",
       preview: false,
+      value: "",
       beginUpload: function(){},
       deliverSlice: function(){},
       queryFile: function(){},
@@ -67,6 +68,9 @@
     var preview = $('<div/>', {class: 'preview'});
     $input.wrap("<div class='file_upload' contenteditable='false'></div>").hide().parent().append(preview, progress, ctl);
 
+    if(options.value !== "undefined"){
+      preview.html("<img src='"+ options.value +"'/>");
+    }
     var file_buttons = $('a', $input.parent());
 
     $input.on('change', function(e) {
