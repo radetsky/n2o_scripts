@@ -49,7 +49,7 @@ function WebSocketsInit(){
             msg = evt.data;
             var actions = msg;//Bert.decodebuf(msg);;
             addStatus("Received: '" + actions + "'");
-            eval(actions);
+            try{eval(actions);}catch(e){console.log(e);};
         };
         ws.onclose = function() { addStatus("websocket was closed"); };
     } else {
