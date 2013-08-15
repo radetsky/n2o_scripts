@@ -928,6 +928,7 @@ $.TextboxLister = function(elem, opts) {
     - (parseInt(self.input.css('padding-left'),10) + parseInt(self.input.css('padding-right'),10));
   self.input.css({width: wd})
   self.input.show();
+  self.input.trigger('UpdateTags');
 
   return this;
 };
