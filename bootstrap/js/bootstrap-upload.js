@@ -127,13 +127,14 @@
       }
     }).on('error', function(e, msg){
       error(msg);
-    });
+    }).on('reset', function(e){ reset_upload(); });
 
     function reset_upload(){
       file_buttons.hide();
       browse_btn.show();
       cancelled_upload = false;
       paused_upload = false;
+      preview.html('');
       info.html('');
       progress_label.html('');
       progress_bar.css('width', "0");
