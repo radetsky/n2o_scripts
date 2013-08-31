@@ -7,7 +7,7 @@
     } else if(this.attr('data-html')) {
       return this.html();
     } else if(this.attr('data-toggle')=='checkbox') {
-        if ($(this).is(':checked')) return this.val(); else return 'undefined';
+        if (this.is(':checked')) return this.val(); else return 'undefined';
     } else
       return $.fn.val.apply(this, arguments);
     }
