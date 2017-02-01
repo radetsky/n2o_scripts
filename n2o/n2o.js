@@ -44,19 +44,35 @@ function WebSocketsInit(){
     if ("MozWebSocket" in window) { WebSocket = MozWebSocket; }
     var port = transition.port;
     if ("WebSocket" in window) {
-        ws = new bullet("ws://"+window.location.hostname+ 
+        ws = new bullet("ws://"+window.location.hostname+
                     ":"+ port +
                    "/ws"+window.location.pathname+
                                 window.location.search);
         initialized = false;
-        ws.onopen = function() { if (!initialized) { ws.send(['N2O', transition.pid]); initialized = true; } };
+        ws.onopen = function() {
+            if ( !initialized ) {
+                ws.send(['N2O', transition.pid]);
+                initialized = true;
+            }
+        };
         ws.onmessage = function (evt) {
             msg = evt.data;
-            var actions = msg;//Bert.decodebuf(msg);;
-            addStatus("Received: '" + actions + "'");
-            try{eval(actions);}catch(e){console.log(e); console.log(actions);};
+            var actions = msg;
+            // Bert.decodebuf(msg);;
+            // addStatus("Received: '" + actions + "'");
+            try {
+                eval(actions);
+            } catch(e) {
+                console.log(e);
+                console.log(actions);
+            };
         };
-        ws.onclose = function() { addStatus("websocket was closed"); };
+        ws.onclose = function() {
+            //addStatus("websocket was closed");
+            console.log("websocket was closed");
+            alert("Соединение с сервером было закрыто. Скопируйте все данные с этой странице при необходимости и обновите ее.");
+            //window.location.href("/login");
+        };
     } else {
         addStatus("sorry, your browser does not support websockets.");
     }
