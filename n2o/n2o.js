@@ -41,13 +41,31 @@ utf8.toByteArray = function(str) {
 };
 
 function WebSocketsInit(){
-    if ("MozWebSocket" in window) { WebSocket = MozWebSocket; }
-    var port = transition.port;
-    if ("WebSocket" in window) {
-        ws = new bullet("ws://"+window.location.hostname+
+//    if ("MozWebSocket" in window) { WebSocket = MozWebSocket; }
+//    var port = transition.port;
+//    if ("WebSocket" in window) {
+//        ws = new bullet("ws://"+window.location.hostname+ ":"+ port + "/ws"+window.location.pathname + window.location.search);
+    if("MozWebSocket"in window){
+         WebSocket=MozWebSocket
+    }
+    var port;
+    if(window.location.port=="")
+        port=transition.port;
+    else 
+        port=window.location.port;
+    
+    if("WebSocket"in window){
+        wsprotocol = "ws:"
+        if ( window.location.protocol == "https:" ) {
+            port = 443;
+            wsprotocol = "wss:"
+        }
+        let newURL = wsprotocol+"//"+window.location.hostname+
                     ":"+ port +
                    "/ws"+window.location.pathname+
-                                window.location.search);
+                                      window.location.search;
+        ws = new bullet(newURL); 
+
         initialized = false;
         ws.onopen = function() {
             if ( !initialized ) {
